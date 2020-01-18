@@ -1,19 +1,20 @@
-sudo apt-get install libudev-dev libusb-1.0-0-dev libfox-1.6-dev
+# projectBooth
 
-https://github.com/LairdCP/UwTerminalX/wiki/Granting-non-root-USB-device-access-(Linux)
+**Work in Progress**
 
-/etc/udev/rules.d/10-photobooth.rules
+This will be a rust-application that can be run on a raspberry pi in combination with a camera and a PS2 buzz-controller.
 
-/etc/udev/rules.d/10-photobooth.rules
+You could use it as a starting point to build your own magic mirror / photobooth.
 
-```                                                                                            
-SUBSYSTEM=="usb", ATTRS{idVendor}=="045e", MODE="0666", GROUP="dialout"
-SUBSYSTEM=="usb_device", ATTRS{idVendor}=="045e", MODE="0666", GROUP="dialout"
-```
+## Dev-Hints
 
-LEDS:
-echo 255 | tee /sys/class/leds/*buzz*/brightness
+To build / run this software you will need to meet some requirements.
 
-ENABLE_RUNTIME_TESTS=false
+* lib-dependencies `sudo apt-get install libevdev-dev`
+* access to usb-devices `sudo cp 10-photobooth.rules /etc/udev/rules.d/10-photobooth.rules`
+* add your user to dialout `sude usermod -a -G dialout YOURUSERNAME`
 
-libevdev-dev
+If you have issues configuring your user-rights it might be easier to
+
+* `cargo build`
+* `sudo ./target/debug/project_booth`
