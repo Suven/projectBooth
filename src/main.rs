@@ -31,6 +31,6 @@ fn main() {
     // Blink twice to show we started successfullly
     input::buzz::blink(2, None);
 
-    // Test button-reactions
-    input::buzz::open_device();
+    //
+
 }
