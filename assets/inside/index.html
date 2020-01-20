@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <title>inside.box</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+
+        #countdown {
+            width: 100vw;
+            max-width: 100vw;
+            height: 100vh;
+            max-height: 100vh;
+        }
+    </style>
+    <link rel="preload" href="./countdown.mp4" as="video" type="video/mp4">
+    <link rel="preload" href="./countdown.webm" as="video" type="video/webm">
+</head>
+
+<body>
+    <video id="countdown" playsinline>
+        <source src="./countdown.mp4" type="video/mp4">
+        <source src="./countdown.webm" type="video/webm">
+    </video>
+    <script type="text/javascript">
+        var player = document.getElementById('countdown')
+        player.play()
+    </script>
+</body>
+
+</html>
