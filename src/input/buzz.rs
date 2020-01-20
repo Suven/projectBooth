@@ -1,16 +1,21 @@
+use crate::broker;
+use broker::broker_message::BrokerMessage;
+use broker::broker_message::Intention;
 use evdev_rs::enums::EventCode;
 use evdev_rs::enums::EventType;
 use evdev_rs::enums::EV_KEY;
 use evdev_rs::Device;
 use evdev_rs::InputEvent;
 use evdev_rs::ReadStatus;
-use std::fmt;
 use std::fs::File;
 use std::process::Command;
-use std::{thread, time};
+use std::sync::mpsc;
+use std::thread;
+use std::time::Duration;
 
 // Hopefully the device can always be found here
 const HWPATH: &str = "/dev/input/by-id/usb-Logitech_Logitech_Buzz_tm__Controller_V1-event-joystick";
+
 // The buttons a Buzz-Controller has
 #[derive(Debug)]
 enum Button {
@@ -22,7 +27,8 @@ enum Button {
     Unknown,
 }
 
-/// Matches the given EventCode to the according button
+/// Matches the given EventCode to the according button.
+/// Binding results from https://github.com/torvalds/linux/blob/master/drivers/hid/hid-sony.c#L302
 fn match_event_code(code: EventCode) -> Button {
     match code {
         EventCode::EV_KEY(EV_KEY::BTN_TRIGGER_HAPPY1) => Button::Buzzer,
@@ -49,12 +55,39 @@ fn match_event_code(code: EventCode) -> Button {
     }
 }
 
-fn process_event(k: (ReadStatus, InputEvent)) {
-    let btn = match_event_code(k.1.event_code);
-    println!("Btn ++ {:?} ++", btn);
+/// Maps the pressed buttons to their according functions.
+fn match_button_to_message(btn: Button) -> Option<Intention> {
+    match btn {
+        Button::Buzzer => Some(Intention::DelayedTriggerPressed),
+        Button::Blue => Some(Intention::InstantTriggerPressed),
+        Button::Yellow => Some(Intention::PrintTriggerPressed),
+        _ => None,
+    }
 }
 
-pub fn open_device() {
+/// Takes a raw evdev-event, figures out the button
+/// that was pressed and its use-case to finally
+/// communicate that intention to the central broker.
+fn process_event(k: (ReadStatus, InputEvent), broker: mpsc::Sender<BrokerMessage>) {
+    let btn = match_event_code(k.1.event_code);
+    let intent = match_button_to_message(btn);
+    let message: Option<BrokerMessage> = match intent {
+        Some(intent) => Some(BrokerMessage {
+            intention: intent,
+            payload: None,
+        }),
+        None => None,
+    };
+
+    if let Some(msg) = message {
+        broker.send(msg).unwrap();
+    }
+}
+
+/// Connects to the buzz-controller and continously waits for
+/// user-input which will then be processed. Thus this should
+/// be executed in a dedicated thread.
+pub fn open_device(broker: mpsc::Sender<BrokerMessage>) {
     let f = File::open(HWPATH).unwrap();
 
     let mut d = Device::new().unwrap();
@@ -73,7 +106,8 @@ pub fn open_device() {
             _ => continue,
         };
         // Process okayish events
-        process_event(event);
+        let l_broker = mpsc::Sender::clone(&broker);
+        process_event(event, l_broker);
     }
 }
 
@@ -82,8 +116,8 @@ pub fn open_device() {
 /// The blinking will end in a turned off state.
 pub fn blink(n: u8, duration: Option<u64>) {
     let d = match duration {
-        None => time::Duration::from_millis(100),
-        Some(n) => time::Duration::from_millis(n),
+        None => Duration::from_millis(100),
+        Some(n) => Duration::from_millis(n),
     };
     // Just to be sure
     turn_leds_off();
