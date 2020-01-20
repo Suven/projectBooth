@@ -2,8 +2,14 @@ use std::sync::mpsc;
 use std::thread;
 use warp::{self, Filter};
 
-mod config;
-mod input;
+mod config {
+    pub mod loadconfig;
+    pub mod var;
+}
+
+mod input {
+    pub mod buzz;
+}
 
 mod broker {
     pub mod broker;
