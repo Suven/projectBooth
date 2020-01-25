@@ -1,8 +1,8 @@
 use crate::broker;
+use crate::input;
 use crate::photo;
 use broker::broker_message::BrokerMessage;
 use broker::broker_message::Intention;
-use std::sync::mpsc;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc::Sender;
 
@@ -31,7 +31,10 @@ pub fn get_tx() -> Sender<BrokerMessage> {
 
 pub fn send_message(msg: BrokerMessage) {
     let tx = get_tx();
-    tx.send(msg);
+    match tx.send(msg) {
+        Ok(_) => (),
+        Err(_e) => panic!("Sending a msg to the broker failed"),
+    }
 }
 
 pub fn process_messages(rx: Receiver<BrokerMessage>) {
@@ -47,7 +50,11 @@ pub fn process_message(msg: BrokerMessage) {
     );
 
     match msg.intention {
-        Intention::InstantTriggerPressed => photo::camera::trigger_capture(),
+        Intention::InstantTriggerPressed => {
+            photo::camera::trigger_capture();
+            input::buzz::blink(1, Some(10));
+        }
+        Intention::CaptureWasInitiated => {}
         _ => (),
     }
 }

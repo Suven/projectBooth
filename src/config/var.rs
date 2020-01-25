@@ -1,5 +1,4 @@
 use std::env;
-use std::env::Vars;
 
 pub fn get(key: &str) -> String {
     match env::var(key) {
