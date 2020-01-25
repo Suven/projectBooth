@@ -1,4 +1,5 @@
 use crate::broker;
+use crate::photo;
 use broker::broker_message::BrokerMessage;
 use broker::broker_message::Intention;
 use std::sync::mpsc;
@@ -43,5 +44,10 @@ pub fn process_message(msg: BrokerMessage) {
     println!(
         "The broker received a msg with the intent {:?}",
         msg.intention
-    )
+    );
+
+    match msg.intention {
+        Intention::InstantTriggerPressed => photo::camera::trigger_capture(),
+        _ => (),
+    }
 }

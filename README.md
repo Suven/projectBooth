@@ -10,7 +10,7 @@ You could use it as a starting point to build your own magic mirror / photobooth
 
 To build / run this software you will need to meet some requirements.
 
-* lib-dependencies `sudo apt-get install libevdev-dev`
+* lib-dependencies `sudo apt-get install libevdev-dev libgphoto2-dev`
 * access to usb-devices `sudo cp 10-photobooth.rules /etc/udev/rules.d/10-photobooth.rules`
 * add your user to dialout `sude usermod -a -G dialout YOURUSERNAME`
 

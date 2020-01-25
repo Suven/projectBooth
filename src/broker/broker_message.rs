@@ -7,6 +7,9 @@ pub enum Intention {
     PhotoWasShot,
     PhotoWasDownloaded,
     PhotoWasPrinted,
+    GPhotoBroken,
+    CameraBroken,
+    InputBroken,
 }
 
 pub struct BrokerMessage {

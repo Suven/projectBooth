@@ -10,6 +10,7 @@ edition = "2018"
 dotenv = "0.15.0"
 warp = "0.1.20"
 evdev-rs = "0.3.1"
+gphoto = "0.1.2"
 
 [[bin]]
 name = "project_booth"

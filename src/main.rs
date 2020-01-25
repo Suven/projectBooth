@@ -17,6 +17,10 @@ mod input {
     pub mod buzz;
 }
 
+mod photo {
+    pub mod camera;
+}
+
 fn main() {
     // Make sure the config is loaded
     config::loadconfig::load_config();
