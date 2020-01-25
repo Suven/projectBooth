@@ -87,7 +87,7 @@ fn process_event(k: (ReadStatus, InputEvent), broker: mpsc::Sender<BrokerMessage
 /// Connects to the buzz-controller and continously waits for
 /// user-input which will then be processed. Thus this should
 /// be executed in a dedicated thread.
-pub fn open_device(broker: mpsc::Sender<BrokerMessage>) {
+pub fn open_device() {
     let f = File::open(HWPATH).unwrap();
 
     let mut d = Device::new().unwrap();
@@ -106,7 +106,7 @@ pub fn open_device(broker: mpsc::Sender<BrokerMessage>) {
             _ => continue,
         };
         // Process okayish events
-        let l_broker = mpsc::Sender::clone(&broker);
+        let l_broker = broker::broker::get_tx();
         process_event(event, l_broker);
     }
 }

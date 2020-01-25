@@ -1,6 +1,12 @@
+use broker::broker_message::BrokerMessage;
 use std::sync::mpsc;
 use std::thread;
 use warp::{self, Filter};
+
+mod broker {
+    pub mod broker;
+    pub mod broker_message;
+}
 
 mod config {
     pub mod loadconfig;
@@ -11,25 +17,17 @@ mod input {
     pub mod buzz;
 }
 
-mod broker {
-    pub mod broker;
-    pub mod broker_message;
-}
-
 fn main() {
     // Make sure the config is loaded
     config::loadconfig::load_config();
 
-    // Create a basic channel for our main broker
-    let (tx, rx) = mpsc::channel();
+    let (tx, rx) = mpsc::channel::<BrokerMessage>();
+    broker::broker::init(tx);
 
     // Spawn a new thread for waiting for inputs
-    thread::spawn(move || {
-        input::buzz::open_device(tx);
+    thread::spawn(|| {
+        input::buzz::open_device();
     });
-
-    // Blink twice to show we started successfullly
-    input::buzz::blink(2, None);
 
     // Routes for Webserving
     let inside =
@@ -39,8 +37,9 @@ fn main() {
         warp::serve(inside).run(([127, 0, 0, 1], 3000));
     });
 
+    // Blink twice to show we started successfullly
+    input::buzz::blink(2, None);
+
     // Let the broker process incomming messages
-    for msg in rx {
-        broker::broker::process_message(msg)
-    }
+    broker::broker::process_messages(rx);
 }
