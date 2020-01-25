@@ -11,7 +11,7 @@ use std::fs::File;
 use std::process::Command;
 use std::sync::mpsc;
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 // Hopefully the device can always be found here
 const HWPATH: &str = "/dev/input/by-id/usb-Logitech_Logitech_Buzz_tm__Controller_V1-event-joystick";
@@ -93,8 +93,14 @@ pub fn open_device() {
     let mut d = Device::new().unwrap();
     d.set_fd(f).unwrap();
 
+    let mut last_loop = Instant::now();
     loop {
+        // Obtain the event
         let res = d.next_event(evdev_rs::ReadFlag::NORMAL | evdev_rs::ReadFlag::BLOCKING);
+        // Is the event old enough?
+        if last_loop.elapsed().as_millis() < 500 {
+            continue;
+        }
         // Ignore malformed events
         let event = match res {
             Ok(res) => res,
@@ -108,6 +114,8 @@ pub fn open_device() {
         // Process okayish events
         let l_broker = broker::broker::get_tx();
         process_event(event, l_broker);
+        // Store the time of this buttonClick
+        last_loop = Instant::now();
     }
 }
 
