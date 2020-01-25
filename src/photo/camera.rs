@@ -4,8 +4,7 @@ use broker::broker_message::BrokerMessage;
 use broker::broker_message::Intention;
 use gphoto;
 
-/// Todo: How can we reuse the context instead
-/// of creating it freshly every time?
+/// Tries to trigger a capture via the connected camera.
 pub fn trigger_capture() {
     let mut ctx = match gphoto::Context::new() {
         Ok(ctx) => ctx,

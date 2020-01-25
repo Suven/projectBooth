@@ -25,6 +25,7 @@ fn main() {
     // Make sure the config is loaded
     config::loadconfig::load_config();
 
+    // Create a central broker distribute events to their actions
     let (tx, rx) = mpsc::channel::<BrokerMessage>();
     broker::broker::init(tx);
 
@@ -37,6 +38,7 @@ fn main() {
     let inside =
         warp::header::exact("host", "inside.box:3000").and(warp::fs::dir("./assets/inside/"));
 
+    // Kick of the webserver
     thread::spawn(|| {
         warp::serve(inside).run(([127, 0, 0, 1], 3000));
     });

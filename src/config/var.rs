@@ -1,5 +1,6 @@
 use std::env;
 
+/// Read the value of a given env-key
 pub fn get(key: &str) -> String {
     match env::var(key) {
         Err(_e) => panic!("Undefined config `{}`", key),
@@ -7,6 +8,8 @@ pub fn get(key: &str) -> String {
     }
 }
 
+/// Read the value of a given env-key
+/// and try casting it to u8
 pub fn get_u8(key: &str) -> u8 {
     let v = get(key);
     match v.parse::<u8>() {
