@@ -62,20 +62,26 @@
                 file: "classy",
                 lineCap: "round",
                 lineJoin: "round",
-                strokeWidth: "8",
+                strokeWidth: "1",
                 easing: mina.easeinout,
             }, {
                 file: "digital",
                 lineCap: "",
                 lineJoin: "bevel",
-                strokeWidth: "7",
-                easing: mina.elastic,
+                strokeWidth: "3",
+                easing: mina.bounce,
             }, {
                 file: "simple",
                 lineCap: "",
                 lineJoin: "round",
                 strokeWidth: "13",
                 easing: mina.elastic,
+            }, {
+                file: "outl",
+                lineCap: "",
+                lineJoin: "",
+                strokeWidth: "1",
+                easing: mina.linear,
             }
         ]
         var ticks = 10
@@ -115,12 +121,17 @@
             _current--
             window.setTimeout(tick, 1000)
         }
+        var startAnimation = function() {
+            _current = 10
+            _currentTheme = randomTheme()
+            injectSvg()
+                .then(prepareAnimation)
+                .then(tick)
+        }
 
         // Kick it off
-        _currentTheme = randomTheme()
-        injectSvg()
-            .then(prepareAnimation)
-            .then(tick)
+        window.setInterval(startAnimation, 15000)
+        startAnimation()
 
     </script>
 </body>
