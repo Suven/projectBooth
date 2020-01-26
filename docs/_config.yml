@@ -17,8 +17,8 @@ title: projectBooth
 
 description: >- # this means to ignore newlines until "baseurl:"
   Everything you need to build your own photobooth! 📸
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "projectBooth" # the subpath of your site, e.g. /blog
+url: "suven.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username: suven
 repository: projectBooth
 
