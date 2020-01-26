@@ -15,25 +15,113 @@
             background-color: black;
         }
 
-        #countdown {
+        #wrapper {
             width: 100vw;
-            max-width: 100vw;
             height: 100vh;
-            max-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items:  center;
+        }
+
+        #countdown {
+            width: 90vw;
+            max-width: 100%;
+            height: 90vh;
+            max-height: 100%;
+        }
+
+        #loadedAnim {
+            display: none;
         }
     </style>
-    <link rel="preload" href="./countdown.mp4" as="video" type="video/mp4">
-    <link rel="preload" href="./countdown.webm" as="video" type="video/webm">
 </head>
 
 <body>
-    <video id="countdown" playsinline>
-        <source src="./countdown.mp4" type="video/mp4">
-        <source src="./countdown.webm" type="video/webm">
-    </video>
+    <div id="wrapper">
+        <svg id="countdown" viewBox="0 0 171 117" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="none" stroke="#ffffff">
+            <path id="targetPath" d="" />
+        </svg>
+    </div>
+    <div id="loadedAnim"></div>
+    <script src="./snap.svg-min.js"></script>
     <script type="text/javascript">
-        var player = document.getElementById('countdown')
-        player.play()
+        // Globals
+        var _countdown = document.getElementById('countdown')
+        var _loadedAnim = document.getElementById('loadedAnim')
+        var _s = Snap(_countdown)
+        var _svgState = {
+            target: Snap.select('#targetPath'),
+            paths: []
+        }
+        var _current = 10
+        var _currentTheme = false
+
+        // Config
+        var themes = [
+            {
+                file: "classy",
+                lineCap: "round",
+                lineJoin: "round",
+                strokeWidth: "8",
+                easing: mina.easeinout,
+            }, {
+                file: "digital",
+                lineCap: "",
+                lineJoin: "bevel",
+                strokeWidth: "7",
+                easing: mina.elastic,
+            }, {
+                file: "simple",
+                lineCap: "",
+                lineJoin: "round",
+                strokeWidth: "13",
+                easing: mina.elastic,
+            }
+        ]
+        var ticks = 10
+
+        // Helpers
+        var randomInt = function(max) {
+            return Math.floor(Math.random() * Math.floor(max))
+        }
+        var randomTheme = function() {
+            return themes[randomInt(themes.length)]
+        }
+
+        // Main functions
+        var injectSvg = function() {
+            return window.fetch(`./countdowns/${_currentTheme.file}.svg`)
+            .then(function(r) { return r.text() })
+            .then(function(svg) {
+                _loadedAnim.innerHTML = svg
+            })
+            .then(function() {
+                _countdown.setAttribute('stroke-width', _currentTheme.strokeWidth)
+                _countdown.setAttribute('line-cap', _currentTheme.lineCap)
+                _countdown.setAttribute('line-join', _currentTheme.lineJoin)
+            })
+        }
+        var prepareAnimation = function() {
+            for (i = 0; i < 11; i++) {
+                _svgState.paths[i] = document.querySelector(`#e${i}`).getAttribute('d')
+            }
+            return Promise.resolve(true)
+        }
+        var tick = function() {
+            if (_current < 0) {
+                return
+            }
+            _svgState.target.animate({ d: _svgState.paths[_current] }, 600, _currentTheme.easing)
+            _current--
+            window.setTimeout(tick, 1000)
+        }
+
+        // Kick it off
+        _currentTheme = randomTheme()
+        injectSvg()
+            .then(prepareAnimation)
+            .then(tick)
+
     </script>
 </body>
 
